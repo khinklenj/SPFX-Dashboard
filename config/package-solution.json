@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "Modern Lead Dashboard",
+    "id": "06fcaa86-4c17-4b5a-88a0-771aa8a9a185",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.21.1"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "ModernLeadDashboard description"
+      },
+      "longDescription": {
+        "default": "ModernLeadDashboard description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "modern-lead-dashboard Feature",
+        "description": "The feature that activates elements of the modern-lead-dashboard solution.",
+        "id": "d2bb9734-7905-4506-80a0-10c2e915f488",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/modern-lead-dashboard.sppkg"
+  }
+}
