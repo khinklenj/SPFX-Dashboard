@@ -117,3 +117,28 @@
   font-size: 14px;
   color: #888;
 }
+
+.rawApiResponse {
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: #f3f3f3;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: Consolas, Monaco, 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: #333;
+  max-height: 300px;
+  overflow: auto;
+
+  h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+    color: #444;
+  }
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+}

@@ -19,12 +19,57 @@ import type { ChartOptions, ChartData } from 'chart.js';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend);
 
-export default class ModernLeadDashboard extends React.Component<IModernLeadDashboardProps> {
+type Metric = {
+  metric_name: string;
+  value: number;
+  color: string;
+};
+
+export default class ModernLeadDashboard extends React.Component<IModernLeadDashboardProps, { metrics: Metric[] }> {
+  constructor(props: IModernLeadDashboardProps) {
+    super(props);
+    this.state = {
+      metrics: []
+    };
+  }
+
+  public componentDidMount(): void {
+    fetch('https://o8zial98ig.execute-api.us-east-1.amazonaws.com/dev/stats')
+      .then(async (res) => {
+        const response = await res.json();
+  
+        let metrics: Metric[] = [];
+  
+        try {
+          // If body is a stringified array, parse it
+          if (typeof response.body === 'string') {
+            metrics = JSON.parse(response.body);
+          }
+          // If body is already parsed array
+          else if (Array.isArray(response.body)) {
+            metrics = response.body;
+          }
+          // If response itself is already an array (direct Lambda proxy)
+          else if (Array.isArray(response)) {
+            metrics = response;
+          } else {
+            throw new Error('Unexpected response structure');
+          }
+        } catch (err) {
+          console.error('Parsing failed:', err);
+        }
+  
+        this.setState({ metrics });
+      })
+      .catch((err) => {
+        console.error('Failed to load metrics:', err);
+      });
+  }
+  
+
   public render(): React.ReactElement<IModernLeadDashboardProps> {
-    const {
-      hasTeamsContext,
-      userDisplayName
-    } = this.props;
+    const { hasTeamsContext, userDisplayName } = this.props;
+    const { metrics } = this.state;
 
     const chartData: ChartData<'line'> = {
       labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
@@ -56,18 +101,11 @@ export default class ModernLeadDashboard extends React.Component<IModernLeadDash
     const chartOptions: ChartOptions<'line'> = {
       responsive: true,
       plugins: {
-        legend: {
-          position: 'top' as const
-        },
-        tooltip: {
-          mode: 'index' as const,
-          intersect: false
-        }
+        legend: { position: 'top' as const },
+        tooltip: { mode: 'index' as const, intersect: false }
       },
       scales: {
-        y: {
-          beginAtZero: true
-        },
+        y: { beginAtZero: true },
         x: {}
       }
     };
@@ -78,12 +116,8 @@ export default class ModernLeadDashboard extends React.Component<IModernLeadDash
       circumference: 180,
       cutout: '70%',
       plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          enabled: false
-        }
+        legend: { display: false },
+        tooltip: { enabled: false }
       }
     };
 
@@ -116,21 +150,24 @@ export default class ModernLeadDashboard extends React.Component<IModernLeadDash
         <div className={styles.gaugeSection}>
           <h3>Progress</h3>
           <div className={styles.gauges}>
-            <div className={styles.gaugeItem}>
-              <Doughnut data={createGaugeData(75, '#0078d4')} options={donutOptions} />
-              <div className={styles.gaugeLabel}>Clients</div>
-            </div>
-            <div className={styles.gaugeItem}>
-              <Doughnut data={createGaugeData(55, '#f7630c')} options={donutOptions} />
-              <div className={styles.gaugeLabel}>Hours Spent</div>
-            </div>
-            <div className={styles.gaugeItem}>
-              <Doughnut data={createGaugeData(40, '#107c10')} options={donutOptions} />
-              <div className={styles.gaugeLabel}>Total Hours</div>
-            </div>
+            {metrics.map((m, i) => (
+              <div className={styles.gaugeItem} key={i}>
+                <Doughnut data={createGaugeData(m.value, m.color)} options={donutOptions} />
+                <div className={styles.gaugeLabel}>{m.metric_name}</div>
+              </div>
+            ))}
           </div>
         </div>
 
+        {/* Raw API Response for Debugging */}
+        <div className={styles.rawApiResponse}>
+          <h3>API Response</h3>
+          <pre style={{ backgroundColor: '#f4f4f4', padding: '1em', borderRadius: '5px', overflowX: 'auto' }}>
+            {JSON.stringify(metrics, null, 2)}
+          </pre>
+        </div>
+
+        {/* Static My Day */}
         <div className={styles.myDayCard}>
           <h3>My day</h3>
           <div className={styles.eventItem}>
@@ -148,13 +185,7 @@ export default class ModernLeadDashboard extends React.Component<IModernLeadDash
             <div className={styles.eventTime}>4:00 PM - 4:50 PM</div>
             <div className={styles.eventLocation}>Microsoft Teams</div>
           </div>
-          <div className={styles.eventItem}>
-            <div className={styles.eventTitle}>PnP team – Bi-weekly sync across the team</div>
-            <div className={styles.eventTime}>4:00 PM - 4:50 PM</div>
-            <div className={styles.eventLocation}>Microsoft Teams</div>
-          </div>
         </div>
-
       </section>
     );
   }
